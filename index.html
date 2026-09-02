@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#17131d">
+  <title>15 Anos | Convite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="glow"></div>
+      <div class="hero-content">
+        <p class="eyebrow">VOCÊ É NOSSO CONVIDADO</p>
+        <div class="monogram">XV</div>
+        <h1>15 anos de<br><span>NOME DA ANIVERSARIANTE</span></h1>
+        <p class="phrase">Uma noite para celebrar sonhos, memórias e um novo capítulo.</p>
+        <a class="primary" href="#detalhes">VER CONVITE</a>
+      </div>
+    </section>
+
+    <section id="detalhes" class="section">
+      <p class="eyebrow">SAVE THE DATE</p>
+      <h2>Uma noite inesquecível</h2>
+      <div class="date-card">
+        <div><strong>00</strong><span>DIA</span></div>
+        <div class="divider"></div>
+        <div><strong>MÊS</strong><span>2026</span></div>
+        <div class="divider"></div>
+        <div><strong>00:00</strong><span>HORÁRIO</span></div>
+      </div>
+      <p class="address">NOME DO LOCAL<br>Endereço da festa</p>
+      <a class="button" href="https://maps.google.com/" target="_blank" rel="noopener">ABRIR LOCALIZAÇÃO</a>
+    </section>
+
+    <section class="section alternate">
+      <p class="eyebrow">CONFIRMAÇÃO</p>
+      <h2>Esperamos você</h2>
+      <p>Confirme sua presença para celebrarmos juntos este momento tão especial.</p>
+      <a class="button" href="#" onclick="alert('Aqui colocaremos o formulário de confirmação de presença.'); return false;">CONFIRMAR PRESENÇA</a>
+    </section>
+
+    <section class="section">
+      <p class="eyebrow">PRESENTES</p>
+      <h2>Seu carinho é o melhor presente</h2>
+      <p>Mas, se desejar presentear, preparamos algumas sugestões especiais.</p>
+      <a class="button outline" href="#" onclick="alert('Aqui colocaremos as opções ou lista de presentes.'); return false;">VER OPÇÕES DE PRESENTE</a>
+    </section>
+
+    <section class="section alternate">
+      <p class="eyebrow">CONTAGEM REGRESSIVA</p>
+      <h2>Falta pouco...</h2>
+      <div id="countdown" class="countdown">
+        <div><strong id="days">--</strong><span>dias</span></div>
+        <div><strong id="hours">--</strong><span>horas</span></div>
+        <div><strong id="minutes">--</strong><span>min</span></div>
+        <div><strong id="seconds">--</strong><span>seg</span></div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="small-monogram">XV</div>
+      <p>NOME DA ANIVERSARIANTE • 15 ANOS</p>
+      <span>Esperamos você para tornar essa noite ainda mais especial.</span>
+    </footer>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
