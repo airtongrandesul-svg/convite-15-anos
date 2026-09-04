@@ -7,6 +7,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Fotos da Júllia">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icon-192.png">
   <title>Fotos da Júllia | 15 Anos</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -14,8 +16,9 @@
   <style>
     * { box-sizing: border-box; }
 
+    html, body { margin: 0; min-height: 100%; }
+
     body {
-      margin: 0;
       min-height: 100svh;
       font-family: Arial, sans-serif;
       background: radial-gradient(circle at top, #fffaf2 0%, #f8f0e5 48%, #eee0cc 100%);
@@ -23,39 +26,37 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
+      overscroll-behavior-y: none;
     }
 
     .card {
       width: 100%;
       max-width: 560px;
-      background: rgba(255,255,255,0.92);
+      min-height: min(760px, calc(100svh - 24px));
+      background: rgba(255,255,255,0.94);
       border-radius: 28px;
-      padding: 38px 24px;
+      padding: 34px 22px;
       text-align: center;
       box-shadow: 0 20px 60px rgba(90,65,35,0.14);
       border: 1px solid rgba(190,145,80,0.32);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .xv {
-      width: 78px;
-      height: 78px;
+      width: 78px; height: 78px;
       border: 1px solid #c89b58;
       border-radius: 50%;
-      display: grid;
-      place-items: center;
-      margin: 0 auto 22px;
+      display: grid; place-items: center;
+      margin: 0 auto 20px;
       font-family: Georgia, serif;
       font-size: 30px;
       color: #ad7e3d;
     }
 
-    .eyebrow {
-      font-size: 11px;
-      letter-spacing: 4px;
-      color: #ad7e3d;
-      margin-bottom: 10px;
-    }
+    .eyebrow { font-size: 11px; letter-spacing: 4px; color: #ad7e3d; margin-bottom: 10px; }
 
     h1 {
       font-family: Georgia, serif;
@@ -76,15 +77,15 @@
     p {
       line-height: 1.65;
       color: #766554;
-      margin: 0 auto 26px;
+      margin: 0 auto 24px;
       max-width: 430px;
     }
 
     .upload-box {
       border: 1px dashed #caa36d;
       border-radius: 22px;
-      padding: 24px 18px;
-      margin: 25px 0;
+      padding: 22px 18px;
+      margin: 20px 0 8px;
       background: #fffaf4;
     }
 
@@ -96,7 +97,7 @@
       justify-content: center;
       gap: 10px;
       width: 100%;
-      min-height: 62px;
+      min-height: 64px;
       border: 2px solid #c89b58;
       border-radius: 16px;
       padding: 16px 20px;
@@ -106,18 +107,7 @@
       font-weight: 700;
       letter-spacing: 1px;
       cursor: pointer;
-      box-shadow: 0 8px 22px rgba(173,126,61,0.10);
-      transition: transform .15s ease, box-shadow .15s ease;
       user-select: none;
-    }
-
-    .select-label:active {
-      transform: scale(.985);
-    }
-
-    .camera {
-      font-size: 22px;
-      line-height: 1;
     }
 
     #selectedCount {
@@ -128,7 +118,7 @@
       font-weight: 600;
     }
 
-    .send-button {
+    .send-button, .install-button {
       width: 100%;
       min-height: 58px;
       border: 0;
@@ -143,11 +133,16 @@
       box-shadow: 0 10px 26px rgba(173,126,61,0.24);
     }
 
-    .send-button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
+    .install-button {
+      display: none;
+      margin-top: 14px;
+      background: #fff;
+      color: #8f6633;
+      border: 1px solid #c89b58;
       box-shadow: none;
     }
+
+    .send-button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 
     #status {
       margin-top: 18px;
@@ -159,35 +154,39 @@
     .success { color: #56764b; font-weight: 700; }
     .error { color: #a14444; font-weight: 700; }
 
+    .ios-tip {
+      display: none;
+      margin-top: 14px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #8a7461;
+    }
+
     .footer {
-      margin-top: 28px;
+      margin-top: 22px;
       font-family: Georgia, serif;
       font-style: italic;
       color: #9a8874;
       font-size: 15px;
     }
 
-    .date {
-      margin-top: 8px;
-      color: #ad7e3d;
-      letter-spacing: 3px;
-      font-size: 11px;
-    }
+    .date { margin-top: 8px; color: #ad7e3d; letter-spacing: 3px; font-size: 11px; }
 
     @media (max-width: 480px) {
-      body { padding: 12px; align-items: stretch; }
+      body { align-items: stretch; }
       .card {
         min-height: calc(100svh - 24px);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
         border-radius: 24px;
-        padding: 32px 18px;
+        padding: 28px 18px;
       }
       h1 { font-size: 42px; }
       h2 { font-size: 27px; }
-      .select-label { font-size: 16px; min-height: 66px; }
-      .send-button { min-height: 62px; font-size: 16px; }
+      .select-label { font-size: 16px; }
+      .send-button, .install-button { min-height: 62px; font-size: 16px; }
+    }
+
+    @media (display-mode: standalone) {
+      .install-button, .ios-tip { display: none !important; }
     }
   </style>
 </head>
@@ -196,9 +195,7 @@
 
   <main class="card">
     <div class="xv">XV</div>
-
     <div class="eyebrow">JÚLLIA • 15 ANOS</div>
-
     <h1>Compartilhe</h1>
     <h2>seus momentos</h2>
 
@@ -208,15 +205,12 @@
     </p>
 
     <div class="upload-box">
-      <input
-        id="files"
-        type="file"
+      <input id="files" type="file"
         accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
-        multiple
-      >
+        multiple>
 
       <label for="files" class="select-label">
-        <span class="camera">📷</span>
+        <span>📷</span>
         <span>SELECIONAR FOTOS</span>
       </label>
 
@@ -227,25 +221,25 @@
       </button>
 
       <div id="status"></div>
+
+      <button id="installButton" class="install-button">
+        ADICIONAR À TELA INICIAL
+      </button>
+
+      <div id="iosTip" class="ios-tip">
+        No iPhone: toque em <strong>Compartilhar</strong> e depois em
+        <strong>Adicionar à Tela de Início</strong>.
+      </div>
     </div>
 
-    <div class="footer">
-      Obrigada por fazer parte desta noite ♡
-    </div>
-
+    <div class="footer">Obrigada por fazer parte desta noite ♡</div>
     <div class="date">20 • 03 • 2027</div>
   </main>
 
   <script>
-    const SUPABASE_URL =
-      "https://vdyocmcdbvgbuvttyeck.supabase.co";
-
-    const SUPABASE_KEY =
-      "sb_publishable_bx1T6ZBPYjX5Z6zAll33tw_AbWMsj1u";
-
-    const supabaseClient =
-      window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
+    const SUPABASE_URL = "https://vdyocmcdbvgbuvttyeck.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_bx1T6ZBPYjX5Z6zAll33tw_AbWMsj1u";
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     const BUCKET = "fotos-jullia-15";
 
     const input = document.getElementById("files");
@@ -253,15 +247,10 @@
 
     input.addEventListener("change", () => {
       const total = input.files.length;
-
-      if (total === 0) {
-        selectedCount.textContent = "Nenhuma foto selecionada";
-      } else if (total === 1) {
-        selectedCount.textContent = "1 foto selecionada";
-      } else {
-        selectedCount.textContent = `${total} fotos selecionadas`;
-      }
-
+      selectedCount.textContent =
+        total === 0 ? "Nenhuma foto selecionada" :
+        total === 1 ? "1 foto selecionada" :
+        `${total} fotos selecionadas`;
       document.getElementById("status").textContent = "";
       document.getElementById("status").className = "";
     });
@@ -286,28 +275,17 @@
 
       for (const file of files) {
         try {
-          if (!file.type.startsWith("image/")) {
+          if (!file.type.startsWith("image/") || file.size > 25 * 1024 * 1024) {
             erros++;
             continue;
           }
 
-          if (file.size > 25 * 1024 * 1024) {
-            erros++;
-            continue;
-          }
-
-          const extensao =
-            file.name.split(".").pop()?.toLowerCase() || "jpg";
-
-          const nome =
-            `${Date.now()}-${crypto.randomUUID()}.${extensao}`;
+          const extensao = file.name.split(".").pop()?.toLowerCase() || "jpg";
+          const nome = `${Date.now()}-${crypto.randomUUID()}.${extensao}`;
 
           const { error } = await supabaseClient.storage
             .from(BUCKET)
-            .upload(nome, file, {
-              cacheControl: "3600",
-              upsert: false
-            });
+            .upload(nome, file, { cacheControl: "3600", upsert: false });
 
           if (error) {
             console.error(error);
@@ -316,9 +294,7 @@
             enviados++;
           }
 
-          status.textContent =
-            `Enviando... ${enviados + erros} de ${files.length}`;
-
+          status.textContent = `Enviando... ${enviados + erros} de ${files.length}`;
         } catch (e) {
           console.error(e);
           erros++;
@@ -329,21 +305,50 @@
 
       if (enviados > 0 && erros === 0) {
         status.className = "success";
-        status.textContent =
-          `Recebemos ${enviados} foto(s) ♡ Obrigada por compartilhar!`;
+        status.textContent = `Recebemos ${enviados} foto(s) ♡ Obrigada por compartilhar!`;
         input.value = "";
         selectedCount.textContent = "Nenhuma foto selecionada";
-
       } else if (enviados > 0) {
         status.className = "success";
-        status.textContent =
-          `${enviados} foto(s) enviadas. ${erros} não puderam ser enviadas.`;
-
+        status.textContent = `${enviados} foto(s) enviadas. ${erros} não puderam ser enviadas.`;
       } else {
         status.className = "error";
-        status.textContent =
-          "Não foi possível enviar as fotos. Tente novamente.";
+        status.textContent = "Não foi possível enviar as fotos. Tente novamente.";
       }
+    }
+
+    // PWA
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js");
+      });
+    }
+
+    let deferredPrompt = null;
+    const installButton = document.getElementById("installButton");
+    const iosTip = document.getElementById("iosTip");
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installButton.style.display = "block";
+    });
+
+    installButton.addEventListener("click", async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      installButton.style.display = "none";
+    });
+
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isStandalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      window.navigator.standalone === true;
+
+    if (isIOS && !isStandalone) {
+      iosTip.style.display = "block";
     }
   </script>
 
