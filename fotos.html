@@ -2,35 +2,36 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#f8f0e5">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Fotos da Júllia">
   <title>Fotos da Júllia | 15 Anos</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      min-height: 100vh;
+      min-height: 100svh;
       font-family: Arial, sans-serif;
-      background:
-        radial-gradient(circle at top, #fffaf2 0%, #f8f0e5 48%, #eee0cc 100%);
+      background: radial-gradient(circle at top, #fffaf2 0%, #f8f0e5 48%, #eee0cc 100%);
       color: #473727;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: 20px;
     }
 
     .card {
       width: 100%;
       max-width: 560px;
-      background: rgba(255,255,255,0.88);
+      background: rgba(255,255,255,0.92);
       border-radius: 28px;
-      padding: 40px 28px;
+      padding: 38px 24px;
       text-align: center;
       box-shadow: 0 20px 60px rgba(90,65,35,0.14);
       border: 1px solid rgba(190,145,80,0.32);
@@ -81,33 +82,71 @@
 
     .upload-box {
       border: 1px dashed #caa36d;
-      border-radius: 20px;
-      padding: 24px;
+      border-radius: 22px;
+      padding: 24px 18px;
       margin: 25px 0;
       background: #fffaf4;
     }
 
-    input[type="file"] {
+    #files { display: none; }
+
+    .select-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
       width: 100%;
-      margin-bottom: 18px;
+      min-height: 62px;
+      border: 2px solid #c89b58;
+      border-radius: 16px;
+      padding: 16px 20px;
+      background: #fff;
+      color: #8f6633;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 8px 22px rgba(173,126,61,0.10);
+      transition: transform .15s ease, box-shadow .15s ease;
+      user-select: none;
     }
 
-    button {
+    .select-label:active {
+      transform: scale(.985);
+    }
+
+    .camera {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    #selectedCount {
+      min-height: 24px;
+      margin: 14px 0 16px;
+      color: #8a7461;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .send-button {
       width: 100%;
+      min-height: 58px;
       border: 0;
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 16px;
       background: linear-gradient(135deg, #d5ad72, #ad7e3d);
       color: white;
       font-weight: bold;
       letter-spacing: 1.5px;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 15px;
+      box-shadow: 0 10px 26px rgba(173,126,61,0.24);
     }
 
-    button:disabled {
+    .send-button:disabled {
       opacity: 0.5;
       cursor: not-allowed;
+      box-shadow: none;
     }
 
     #status {
@@ -117,13 +156,8 @@
       min-height: 24px;
     }
 
-    .success {
-      color: #56764b;
-    }
-
-    .error {
-      color: #a14444;
-    }
+    .success { color: #56764b; font-weight: 700; }
+    .error { color: #a14444; font-weight: 700; }
 
     .footer {
       margin-top: 28px;
@@ -138,6 +172,22 @@
       color: #ad7e3d;
       letter-spacing: 3px;
       font-size: 11px;
+    }
+
+    @media (max-width: 480px) {
+      body { padding: 12px; align-items: stretch; }
+      .card {
+        min-height: calc(100svh - 24px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        border-radius: 24px;
+        padding: 32px 18px;
+      }
+      h1 { font-size: 42px; }
+      h2 { font-size: 27px; }
+      .select-label { font-size: 16px; min-height: 66px; }
+      .send-button { min-height: 62px; font-size: 16px; }
     }
   </style>
 </head>
@@ -165,7 +215,14 @@
         multiple
       >
 
-      <button id="sendButton" onclick="enviarFotos()">
+      <label for="files" class="select-label">
+        <span class="camera">📷</span>
+        <span>SELECIONAR FOTOS</span>
+      </label>
+
+      <div id="selectedCount">Nenhuma foto selecionada</div>
+
+      <button id="sendButton" class="send-button" onclick="enviarFotos()">
         ENVIAR FOTOS
       </button>
 
@@ -191,22 +248,38 @@
 
     const BUCKET = "fotos-jullia-15";
 
+    const input = document.getElementById("files");
+    const selectedCount = document.getElementById("selectedCount");
+
+    input.addEventListener("change", () => {
+      const total = input.files.length;
+
+      if (total === 0) {
+        selectedCount.textContent = "Nenhuma foto selecionada";
+      } else if (total === 1) {
+        selectedCount.textContent = "1 foto selecionada";
+      } else {
+        selectedCount.textContent = `${total} fotos selecionadas`;
+      }
+
+      document.getElementById("status").textContent = "";
+      document.getElementById("status").className = "";
+    });
+
     async function enviarFotos() {
-      const input = document.getElementById("files");
       const button = document.getElementById("sendButton");
       const status = document.getElementById("status");
       const files = Array.from(input.files);
 
       if (files.length === 0) {
         status.className = "error";
-        status.textContent = "Escolha pelo menos uma foto.";
+        status.textContent = "Selecione pelo menos uma foto.";
         return;
       }
 
       button.disabled = true;
       status.className = "";
-      status.textContent =
-        `Preparando o envio de ${files.length} foto(s)...`;
+      status.textContent = `Preparando o envio de ${files.length} foto(s)...`;
 
       let enviados = 0;
       let erros = 0;
@@ -259,6 +332,7 @@
         status.textContent =
           `Recebemos ${enviados} foto(s) ♡ Obrigada por compartilhar!`;
         input.value = "";
+        selectedCount.textContent = "Nenhuma foto selecionada";
 
       } else if (enviados > 0) {
         status.className = "success";
