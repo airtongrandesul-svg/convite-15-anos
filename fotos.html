@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fotos da Júllia | 15 Anos</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, #fffaf2 0%, #f8f0e5 48%, #eee0cc 100%);
+      color: #473727;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 560px;
+      background: rgba(255,255,255,0.88);
+      border-radius: 28px;
+      padding: 40px 28px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(90,65,35,0.14);
+      border: 1px solid rgba(190,145,80,0.32);
+    }
+
+    .xv {
+      width: 78px;
+      height: 78px;
+      border: 1px solid #c89b58;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 22px;
+      font-family: Georgia, serif;
+      font-size: 30px;
+      color: #ad7e3d;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: #ad7e3d;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-family: Georgia, serif;
+      font-weight: normal;
+      font-size: 44px;
+      margin: 0;
+      color: #4d3928;
+    }
+
+    h2 {
+      font-family: Georgia, serif;
+      font-weight: normal;
+      font-size: 29px;
+      margin: 6px 0 18px;
+      color: #8f6633;
+    }
+
+    p {
+      line-height: 1.65;
+      color: #766554;
+      margin: 0 auto 26px;
+      max-width: 430px;
+    }
+
+    .upload-box {
+      border: 1px dashed #caa36d;
+      border-radius: 20px;
+      padding: 24px;
+      margin: 25px 0;
+      background: #fffaf4;
+    }
+
+    input[type="file"] {
+      width: 100%;
+      margin-bottom: 18px;
+    }
+
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 14px;
+      padding: 16px;
+      background: linear-gradient(135deg, #d5ad72, #ad7e3d);
+      color: white;
+      font-weight: bold;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #status {
+      margin-top: 18px;
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 24px;
+    }
+
+    .success {
+      color: #56764b;
+    }
+
+    .error {
+      color: #a14444;
+    }
+
+    .footer {
+      margin-top: 28px;
+      font-family: Georgia, serif;
+      font-style: italic;
+      color: #9a8874;
+      font-size: 15px;
+    }
+
+    .date {
+      margin-top: 8px;
+      color: #ad7e3d;
+      letter-spacing: 3px;
+      font-size: 11px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="card">
+    <div class="xv">XV</div>
+
+    <div class="eyebrow">JÚLLIA • 15 ANOS</div>
+
+    <h1>Compartilhe</h1>
+    <h2>seus momentos</h2>
+
+    <p>
+      Você registrou um momento especial da nossa festa?
+      Compartilhe suas fotos e ajude a guardar cada lembrança desta noite.
+    </p>
+
+    <div class="upload-box">
+      <input
+        id="files"
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+        multiple
+      >
+
+      <button id="sendButton" onclick="enviarFotos()">
+        ENVIAR FOTOS
+      </button>
+
+      <div id="status"></div>
+    </div>
+
+    <div class="footer">
+      Obrigada por fazer parte desta noite ♡
+    </div>
+
+    <div class="date">20 • 03 • 2027</div>
+  </main>
+
+  <script>
+    const SUPABASE_URL =
+      "https://vdyocmcdbvgbuvttyeck.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_bx1T6ZBPYjX5Z6zAll33tw_AbWMsj1u";
+
+    const supabaseClient =
+      window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const BUCKET = "fotos-jullia-15";
+
+    async function enviarFotos() {
+      const input = document.getElementById("files");
+      const button = document.getElementById("sendButton");
+      const status = document.getElementById("status");
+      const files = Array.from(input.files);
+
+      if (files.length === 0) {
+        status.className = "error";
+        status.textContent = "Escolha pelo menos uma foto.";
+        return;
+      }
+
+      button.disabled = true;
+      status.className = "";
+      status.textContent =
+        `Preparando o envio de ${files.length} foto(s)...`;
+
+      let enviados = 0;
+      let erros = 0;
+
+      for (const file of files) {
+        try {
+          if (!file.type.startsWith("image/")) {
+            erros++;
+            continue;
+          }
+
+          if (file.size > 25 * 1024 * 1024) {
+            erros++;
+            continue;
+          }
+
+          const extensao =
+            file.name.split(".").pop()?.toLowerCase() || "jpg";
+
+          const nome =
+            `${Date.now()}-${crypto.randomUUID()}.${extensao}`;
+
+          const { error } = await supabaseClient.storage
+            .from(BUCKET)
+            .upload(nome, file, {
+              cacheControl: "3600",
+              upsert: false
+            });
+
+          if (error) {
+            console.error(error);
+            erros++;
+          } else {
+            enviados++;
+          }
+
+          status.textContent =
+            `Enviando... ${enviados + erros} de ${files.length}`;
+
+        } catch (e) {
+          console.error(e);
+          erros++;
+        }
+      }
+
+      button.disabled = false;
+
+      if (enviados > 0 && erros === 0) {
+        status.className = "success";
+        status.textContent =
+          `Recebemos ${enviados} foto(s) ♡ Obrigada por compartilhar!`;
+        input.value = "";
+
+      } else if (enviados > 0) {
+        status.className = "success";
+        status.textContent =
+          `${enviados} foto(s) enviadas. ${erros} não puderam ser enviadas.`;
+
+      } else {
+        status.className = "error";
+        status.textContent =
+          "Não foi possível enviar as fotos. Tente novamente.";
+      }
+    }
+  </script>
+
+</body>
+</html>
